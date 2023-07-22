@@ -1,17 +1,13 @@
-// Replace with your GitHub repository information
 const owner = 'Ultimate15k';
 const repo = 'FrihedenAddon';
 
-// GitHub API URL for releases
 const apiUrl = `https://api.github.com/repos/${owner}/${repo}/releases`;
 
-// Function to fetch data from GitHub API
 async function fetchReleaseData() {
     try {
         const response = await fetch(apiUrl);
         const releases = await response.json();
 
-        // Assuming releases are sorted in descending order of release date
         if (releases.length > 0) {
             displayChangelog(releases);
         } else {
@@ -22,11 +18,38 @@ async function fetchReleaseData() {
     }
 }
 
-// Function to display the changelog on the page
+async function fetchLatestReleaseData() {
+    try {
+        const response = await fetch(apiUrl);
+        const releases = await response.json();
+
+        if (releases.length > 0) {
+            const assetUrl = releases[0].assets[0].browser_download_url;
+
+            const downloadLink = document.createElement("a");
+            downloadLink.href = assetUrl;
+            downloadLink.download = "FrihedenAddon-release.jar";
+            document.body.appendChild(downloadLink);
+
+            downloadLink.click();
+
+            document.body.removeChild(downloadLink);
+
+            setTimeout(() => {
+                window.location.href = "thanks";
+            }, 2000);
+        } else {
+            console.error("No releases found.");
+        }
+    } catch (error) {
+        console.error("Error fetching data from GitHub API.", error);
+    }
+}
+
 function displayChangelog(releases) {
     const changelogContainer = document.getElementById('changelog-container');
     const converter = new showdown.Converter();
-    let allReleaseNotesHTML = ''; // To store all the release notes
+    let allReleaseNotesHTML = '';
 
     for (const release of releases) {
         const releaseTag = release.tag_name;
@@ -37,11 +60,9 @@ function displayChangelog(releases) {
         allReleaseNotesHTML += `<div class="release">${releaseTagElement}<div class="release-note-text">${releaseNoteHTML}</div></div>`;
     }
 
-    // Append all the release notes to the changelog container
     changelogContainer.innerHTML = allReleaseNotesHTML;
 }
 
-// Function to display an error message on the page
 function displayError(message) {
     const changelogContainer = document.getElementById('changelog-container');
     const errorElement = document.createElement('p');
@@ -49,5 +70,4 @@ function displayError(message) {
     changelogContainer.appendChild(errorElement);
 }
 
-// Fetch the release data when the page loads
 fetchReleaseData();

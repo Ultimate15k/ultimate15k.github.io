@@ -49,17 +49,21 @@ async function fetchLatestReleaseData() {
 function displayChangelog(releases) {
     const changelogContainer = document.getElementById('changelog-container');
     const converter = new showdown.Converter();
-    let allReleaseNotesHTML = '';
+    let allReleaseNotesHTML = ''; // To store all the release notes
 
     for (const release of releases) {
         const releaseTag = release.tag_name;
-        const releaseNote = release.body;
+        let releaseNote = release.body;
+
+        // Find occurrences of "Don't download!" and wrap them in a <span> with a CSS class
+        releaseNote = releaseNote.replace(/(Don't download!)/gi, '<span class="highlighted">$1</span>');
 
         const releaseTagElement = `<h2>Release Tag: ${releaseTag}</h2>`;
         const releaseNoteHTML = converter.makeHtml(releaseNote);
         allReleaseNotesHTML += `<div class="release">${releaseTagElement}<div class="release-note-text">${releaseNoteHTML}</div></div>`;
     }
 
+    // Append all the release notes to the changelog container
     changelogContainer.innerHTML = allReleaseNotesHTML;
 }
 
